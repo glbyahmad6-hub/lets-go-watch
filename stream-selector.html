@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stream Selector — Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: #0b0e14;
+    color: #e8ebf2;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px;
+  }
+
+  .wrap { width: 100%; max-width: 560px; }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .header h1 { font-size: 18px; font-weight: 800; letter-spacing: -0.2px; }
+  .header .right { display: flex; align-items: center; gap: 12px; }
+  .header .count { font-size: 12.5px; color: #8b94a7; }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+  .status .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+
+  .search { position: relative; margin-bottom: 14px; }
+  .search svg {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #566070;
+    pointer-events: none;
+  }
+  .search input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 9px 12px 9px 34px;
+    color: #e8ebf2;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    caret-color: #2ee6a8;
+    transition: border-color 120ms ease;
+  }
+  .search input:focus { border-color: rgba(46, 230, 168, 0.5); }
+  .search input::placeholder { color: #566070; }
+  .search input::-webkit-search-cancel-button { display: none; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 7px;
+    white-space: nowrap;
+  }
+  .chip.filter { cursor: pointer; border: 1px solid transparent; transition: box-shadow 120ms ease; }
+
+  .list {
+    background: #12161f;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    transition: background 120ms ease;
+    cursor: pointer;
+  }
+  .row:last-child { border-bottom: none; }
+  .row:hover { background: rgba(255, 255, 255, 0.035); }
+
+  .empty {
+    padding: 28px 16px;
+    text-align: center;
+    font-size: 13px;
+    color: #8b94a7;
+  }
+
+  .quality {
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    padding: 6px 10px;
+    border-radius: 9px;
+    min-width: 54px;
+    justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .quality.q2160 { background: linear-gradient(135deg, #7b2ff7 0%, #00c6ff 100%); }
+  .quality.q1080 { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); }
+  .quality.q720  { background: #f97316; }
+  .quality.q480  { background: #38bdf8; }
+  .quality.qhd   { background: #64748b; }
+
+  .meta { flex: 1; min-width: 0; }
+  .title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #2ee6a8;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .details {
+    font-size: 12px;
+    color: #8b94a7;
+    margin-top: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+    max-width: 46%;
+  }
+
+  .chevron { color: #566070; font-size: 18px; flex-shrink: 0; user-select: none; }
+
+  .b-webdl {
+    background: #ffffff;
+    color: #0a0e17;
+    box-shadow: 0 0 14px rgba(59, 130, 246, 0.9);
+    border: 1px solid rgba(147, 197, 253, 0.9);
+  }
+  .b-dolby { background: rgba(245, 197, 66, 0.12); color: #f5c542; border: 1px solid rgba(245, 197, 66, 0.45); }
+  .b-hdr   { background: rgba(255, 207, 63, 0.12); color: #ffcf3f; border: 1px solid rgba(255, 207, 63, 0.45); }
+  .b-10bit { background: rgba(240, 180, 41, 0.12); color: #f0b429; border: 1px solid rgba(240, 180, 41, 0.45); }
+  .b-dts   { background: rgba(234, 179, 8, 0.12); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.45); }
+  .b-51    { background: rgba(255, 225, 77, 0.12); color: #ffe14d; border: 1px solid rgba(255, 225, 77, 0.5); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h1>Choose stream</h1>
+      <div class="right">
+        <span class="count" id="count">0 available</span>
+        <span class="status" id="status"><span class="dot"></span>Connecting…</span>
+      </div>
+    </div>
+
+    <div class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" />
+      </svg>
+      <input type="search" id="search" placeholder="Search streams…" autocomplete="off" />
+    </div>
+
+    <div class="filters" id="filters"></div>
+    <div class="list" id="list"></div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // Real backend: GET {api}/manifest/:encodedConfig/stream/:type/:id.json
+      // -> { streams: [{ name, title, url, behaviorHints: { bingeGroup } }] }
+      // Override the endpoint with ?api=...
+      var API_URL = new URLSearchParams(location.search).get('api') ||
+        'http://localhost:5000/api/manifest/demo/stream/movie/tt0111161.json';
+
+      var SAMPLE_ROWS = [
+        { id: 's1', quality: '2160p', title: '[TB ⚡️] Comet 2160p', details: 'HEVC • 14.2 GB • 67.3 Mbps', provider: 'TB', badges: ['webdl', 'dolby', 'hdr', '10bit', 'dts', '51'] },
+        { id: 's2', quality: '1080p', title: '[TB ⚡️] Comet 1080p', details: 'H.264 • 4.8 GB • 12.4 Mbps', provider: 'TB', badges: ['webdl', '51'] },
+        { id: 's3', quality: '2160p', title: '[TGx] Galaxy 2160p', details: 'HEVC • 21.0 GB • 88.2 Mbps', provider: 'TGx', badges: ['webdl', 'hdr', '10bit', 'dts'] },
+        { id: 's4', quality: '2160p', title: '[ET] Leet 2160p', details: 'HEVC • 17.6 GB • 74.1 Mbps', provider: 'ET', badges: ['webdl', 'dolby', 'hdr', '10bit', 'dts'] }
+      ];
+
+      var SAMPLE_FILTERS = ['All', 'Comet', 'TB', 'Galaxy', 'Leet'];
+      var SAMPLE_COLORS = { All: '#ffffff', Comet: '#34d399', TB: '#a78bfa', Galaxy: '#22d3ee', Leet: '#fb923c' };
+      var PALETTE = ['#34d399', '#a78bfa', '#22d3ee', '#fb923c', '#f472b6', '#facc15', '#60a5fa'];
+
+      var LABELS = { '2160p': '2160p', '1080p': '1080p', '720p': '720p', '480p': '480p', hd: 'HD', webdl: 'WEB-DL', dolby: 'DOLBY VISION', hdr: 'HDR', '10bit': '10-bit', dts: 'DTS-HD MA', '51': '5.1' };
+      var QUALITY_CLASS = { '2160p': 'q2160', '1080p': 'q1080', '720p': 'q720', '480p': 'q480', hd: 'qhd' };
+      var FORMAT_CLASS = { webdl: 'b-webdl', dolby: 'b-dolby', hdr: 'b-hdr', '10bit': 'b-10bit', dts: 'b-dts', '51': 'b-51' };
+
+      var state = {
+        streams: SAMPLE_ROWS,
+        filters: SAMPLE_FILTERS,
+        active: 'All',
+        query: '',
+        status: 'loading',
+        live: false
+      };
+
+      function esc(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+
+      function parseQuality(text) {
+        var m = /\b(2160p|4k|1080p|720p|480p)\b/i.exec(text || '');
+        if (!m) return null;
+        var v = m[1].toLowerCase();
+        return v === '4k' ? '2160p' : v;
+      }
+
+      function providerOf(stream) {
+        var group = stream.behaviorHints && stream.behaviorHints.bingeGroup;
+        if (group) {
+          var clean = group.replace(/^aahub-/, '').replace(/-/g, ' ').trim();
+          if (clean) return clean;
+        }
+        var bracket = /\[([^\]]+)\]/.exec(stream.name || '');
+        if (bracket) return bracket[1].trim();
+        return 'Provider';
+      }
+
+      function toRow(stream, index) {
+        var text = (stream.name || '') + ' ' + (stream.title || '');
+        return {
+          id: 'live-' + index,
+          quality: parseQuality(text) || 'hd',
+          title: stream.name || 'Stream',
+          details: stream.title || '',
+          badges: [],
+          provider: providerOf(stream),
+          url: stream.url
+        };
+      }
+
+      function uniqueProviders(rows) {
+        var seen = {}, out = [];
+        rows.forEach(function (row) {
+          var p = row.provider || 'Provider';
+          if (!seen[p]) { seen[p] = true; out.push(p); }
+        });
+        return out;
+      }
+
+      function filterColor(f, i) {
+        if (f === 'All') return '#ffffff';
+        if (state.live) return PALETTE[i % PALETTE.length];
+        return SAMPLE_COLORS[f] || PALETTE[i % PALETTE.length];
+      }
+
+      var filtersEl = document.getElementById('filters');
+      var listEl = document.getElementById('list');
+      var countEl = document.getElementById('count');
+      var statusEl = document.getElementById('status');
+      var searchEl = document.getElementById('search');
+
+      function render() {
+        // Filter chips
+        filtersEl.innerHTML = state.filters.map(function (f, i) {
+          var color = filterColor(f, i);
+          var active = f === state.active;
+          var style = active
+            ? 'background:' + color + ';color:#0b0e14;border:1px solid transparent;box-shadow:0 0 10px ' + color + '66;'
+            : 'background:' + color + '26;color:' + color + ';border:1px solid ' + color + '66;';
+          return '<span class="chip filter" data-filter="' + esc(f) + '" style="' + style + '">' + esc(f) + '</span>';
+        }).join('');
+
+        // Rows
+        var q = state.query.trim().toLowerCase();
+        var filtered = state.streams.filter(function (s) {
+          var active = state.active.toLowerCase();
+          var tagOk = state.active === 'All' ||
+            s.title.toLowerCase().indexOf(active) !== -1 ||
+            (s.provider || '').toLowerCase().indexOf(active) !== -1;
+          var queryOk = q === '' || (s.title + ' ' + s.details).toLowerCase().indexOf(q) !== -1;
+          return tagOk && queryOk;
+        });
+
+        if (filtered.length === 0) {
+          listEl.innerHTML = '<div class="empty">No streams match this filter</div>';
+        } else {
+          listEl.innerHTML = filtered.map(function (s) {
+            var badges = (s.badges || []).map(function (b) {
+              return '<span class="chip ' + FORMAT_CLASS[b] + '">' + esc(LABELS[b]) + '</span>';
+            }).join('');
+            var badgesHtml = badges ? '<div class="badges">' + badges + '</div>' : '';
+            var urlAttr = s.url ? ' data-url="' + esc(s.url) + '"' : '';
+            return '<div class="row"' + urlAttr + '>' +
+              '<span class="chip quality ' + QUALITY_CLASS[s.quality] + '">' + esc(LABELS[s.quality]) + '</span>' +
+              '<div class="meta"><div class="title">' + esc(s.title) + '</div><div class="details">' + esc(s.details) + '</div></div>' +
+              badgesHtml +
+              '<span class="chevron">›</span>' +
+              '</div>';
+          }).join('');
+        }
+
+        // Count + status
+        countEl.textContent = filtered.length + ' available';
+        var color = state.status === 'live' ? '#2ee6a8' : state.status === 'sample' ? '#fb923c' : '#566070';
+        var label = state.status === 'live' ? 'Live API' : state.status === 'sample' ? 'Sample data' : 'Connecting…';
+        statusEl.style.color = color;
+        statusEl.innerHTML = '<span class="dot" style="background:' + color + '"></span>' + label;
+      }
+
+      filtersEl.addEventListener('click', function (e) {
+        var chip = e.target.closest('.chip.filter');
+        if (!chip) return;
+        state.active = chip.getAttribute('data-filter');
+        render();
+      });
+
+      listEl.addEventListener('click', function (e) {
+        var row = e.target.closest('.row');
+        var url = row && row.getAttribute('data-url');
+        if (url) window.open(url, '_blank', 'noopener');
+      });
+
+      searchEl.addEventListener('input', function (e) {
+        state.query = e.target.value;
+        render();
+      });
+
+      // Fetch live streams; fall back to samples when unreachable.
+      fetch(API_URL, { headers: { accept: 'application/json' } })
+        .then(function (res) {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json();
+        })
+        .then(function (data) {
+          var rows = ((data && data.streams) || []).map(toRow);
+          if (!rows.length) throw new Error('No streams returned');
+          state.streams = rows;
+          state.filters = ['All'].concat(uniqueProviders(rows));
+          state.live = true;
+          state.status = 'live';
+          if (state.filters.indexOf(state.active) === -1) state.active = 'All';
+          render();
+        })
+        .catch(function () {
+          if (state.status === 'loading') {
+            state.status = 'sample';
+            render();
+          }
+        });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

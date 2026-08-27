@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>يلا خلينا نشوف 🎬</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    background: #0a0a0f;
+    color: #e0e0e0;
+    min-height: 100vh;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    padding: 60px 40px 40px;
+    text-align: center;
+    border-bottom: 2px solid #e94560;
+  }
+
+  .hero h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  .hero p {
+    color: #aaa;
+    font-size: 1.1rem;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  .movies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 32px;
+  }
+
+  .movie-card {
+    background: #14141f;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #222;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+  }
+
+  .movie-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px rgba(233, 69, 96, 0.2);
+    border-color: #e94560;
+  }
+
+  .card-header {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .poster {
+    width: 120px;
+    min-height: 170px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: #222;
+    flex-shrink: 0;
+  }
+
+  .card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .card-info h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+
+  .card-info .arabic-title {
+    font-size: 0.95rem;
+    color: #e94560;
+    margin-bottom: 6px;
+  }
+
+  .card-info .description {
+    font-size: 0.88rem;
+    color: #999;
+    line-height: 1.6;
+  }
+
+  .rating-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #e94560;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-top: 8px;
+    width: fit-content;
+  }
+
+  .card-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #222;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: #888;
+  }
+
+  .card-footer .item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-footer .label {
+    color: #666;
+  }
+
+  .card-footer .value {
+    color: #ccc;
+    font-weight: 600;
+  }
+
+  .genres {
+    padding: 0 20px 16px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .genre-tag {
+    background: #1e1e30;
+    color: #e94560;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    border: 1px solid #333;
+  }
+
+  .cast-list {
+    padding: 0 20px 20px;
+  }
+
+  .cast-list h4 {
+    font-size: 0.82rem;
+    color: #555;
+    margin-bottom: 6px;
+  }
+
+  .cast-names {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .cast-chip {
+    background: #1a1a28;
+    color: #ccc;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    border: 1px solid #2a2a3a;
+  }
+
+  @media (max-width: 420px) {
+    .hero h1 { font-size: 2rem; }
+    .hero { padding: 40px 20px 30px; }
+    .movies-grid { grid-template-columns: 1fr; }
+    .card-header { flex-direction: column; align-items: center; text-align: center; }
+    .card-footer { grid-template-columns: 1fr; }
+    .genres { justify-content: center; }
+    .rating-badge { margin: 8px auto 0; }
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: #14141f;
+    border-radius: 20px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid #333;
+    position: relative;
+  }
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: #e94560;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .modal-poster-wrap {
+    width: 100%;
+    height: 320px;
+    overflow: hidden;
+    border-radius: 20px 20px 0 0;
+    position: relative;
+  }
+  .modal-poster-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .modal-poster-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 100px;
+    background: linear-gradient(transparent, #14141f);
+  }
+  .modal-body { padding: 24px 28px 28px; }
+  .modal-body h2 {
+    font-size: 1.8rem;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .modal-body .arabic-title {
+    color: #e94560;
+    font-size: 1.15rem;
+    margin-bottom: 10px;
+  }
+  .modal-body .description {
+    color: #aaa;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .modal-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .modal-meta .item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+  }
+  .modal-meta .label { color: #666; }
+  .modal-meta .value { color: #ccc; font-weight: 600; }
+  .modal-genres {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .modal-cast {
+    margin-bottom: 24px;
+  }
+  .modal-cast h4 {
+    color: #555;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+  }
+  .play-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #e94560, #c23152);
+    color: #fff;
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .play-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 24px rgba(233,69,96,0.4);
+  }
+  @media (max-width: 420px) {
+    .modal-body h2 { font-size: 1.3rem; }
+    .modal-meta { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>🎬 يلا خلينا نشوف</h1>
+  <p>أفضل الأفلام بترجمة عربية — شاهد واستمتع</p>
+</div>
+
+<div class="container">
+  <h2 style="color:#fff;font-size:2rem;margin-bottom:24px;">📺 المسلسلات</h2>
+  <div class="movies-grid" id="series"></div>
+  <h2 style="color:#fff;font-size:2rem;margin:40px 0 24px;">🎬 الأفلام</h2>
+  <div class="movies-grid" id="movies"></div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modal-close">✕</button>
+    <div class="modal-poster-wrap">
+      <img id="modal-poster" src="" alt="">
+    </div>
+    <div class="modal-body">
+      <h2 id="modal-title"></h2>
+      <div class="arabic-title" id="modal-arabic"></div>
+      <div class="description" id="modal-desc"></div>
+      <div class="modal-meta" id="modal-meta"></div>
+      <div class="modal-genres" id="modal-genres"></div>
+      <div class="modal-cast">
+        <h4>طاقم التمثيل</h4>
+        <div class="cast-names" id="modal-cast"></div>
+      </div>
+      <button class="play-btn" onclick="alert('▶️ جاري تحضير الفيديو...')">▶️ شاهد الآن</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const movies = [
+  {
+    title: "Dune: Part Two",
+    arabicTitle: "الرمل: الجزء الثاني",
+    description: "فيلم خيال علمي ملحمي عن الحرب على كوكب أراكيس والتحالفات",
+    poster: "https://image.tmdb.org/t/p/w500/eu8lTHTfMqcYvTzLDVVyKpYhb8y.jpg",
+    year: 2024,
+    genre: ["خيال علمي", "أكشن", "مغامرة"],
+    rating: 8.1,
+    country: "أمريكا",
+    language: "إنجليزية مترجمة",
+    duration: 166,
+    director: "Denis Villeneuve",
+    cast: ["Timothée Chalamet", "Zendaya", "Austin Butler"]
+  },
+  {
+    title: "Deadpool & Wolverine",
+    arabicTitle: "ديدبول وولفرين",
+    description: "فيلم كوميديا أكشن عن الميرسيناري الفوضوي والأسطورة المتحفظة",
+    poster: "https://image.tmdb.org/t/p/w500/NRjCfv0lV0sEW2e1JJDhqFxM3T8.jpg",
+    year: 2024,
+    genre: ["أكشن", "كوميديا", "مغامرة"],
+    rating: 7.9,
+    country: "أمريكا",
+    language: "إنجليزية مترجمة",
+    duration: 128,
+    director: "Shawn Levy",
+    cast: ["Ryan Reynolds", "Hugh Jackman", "Emma Corrin"]
+  },
+  {
+    title: "Inside Out 2",
+    arabicTitle: "من الداخل للخارج 2",
+    description: "فيلم رسوم متحركة عن المشاعر والنمو النفسي للمراهقين",
+    poster: "https://image.tmdb.org/t/p/w500/vpnVM9B6NMR7OKste3mMVHW57Co.jpg",
+    year: 2024,
+    genre: ["رسوم متحركة", "كوميديا", "دراما"],
+    rating: 8.3,
+    country: "أمريكا",
+    language: "إنجليزية مترجمة",
+    duration: 96,
+    director: "Kelsey Mann",
+    cast: ["Amy Poehler", "Phyllis Smith", "Lewis Black"]
+  },
+  {
+    title: "Alien: Romulus",
+    arabicTitle: "الكائن الفضائي: رومولوس",
+    description: "فيلم رعب خيال علمي عن طاقم يواجه كائنات غريبة وحشية",
+    poster: "https://image.tmdb.org/t/p/w500/cqSnzWvDp3YdVyI5zkyBBcQFkiw.jpg",
+    year: 2024,
+    genre: ["رعب", "خيال علمي", "إثارة"],
+    rating: 7.5,
+    country: "أمريكا",
+    language: "إنجليزية مترجمة",
+    duration: 119,
+    director: "Fede Álvarez",
+    cast: ["Cailee Spaeny", "David Jonsson", "Archie Renaux"]
+  },
+  {
+    title: "Oppenheimer",
+    arabicTitle: "أوبنهايمر",
+    description: "فيلم درامي سيرة ذاتية عن مخترع القنبلة الذرية روبير أوبنهايمر",
+    poster: "https://image.tmdb.org/t/p/w500/8Gxv8kSQNOSz1BNorw025q8tooK.jpg",
+    year: 2023,
+    genre: ["درامي", "سيرة ذاتية", "تاريخي"],
+    rating: 8.1,
+    country: "أمريكا",
+    language: "إنجليزية مترجمة",
+    duration: 180,
+    director: "Christopher Nolan",
+    cast: ["Cillian Murphy", "Robert Downey Jr.", "Emily Blunt"]
+  },
+  {
+    title: "Barbie",
+    arabicTitle: "باربي",
+    description: "فيلم كوميديا خيالي عن الدمية الشهيرة وحياتها في مدينة باربي",
+    poster: "https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfAy3mAu2iZkRLA.jpg",
+    year: 2023,
+    genre: ["كوميديا", "خيال", "دراما"],
+    rating: 7.9,
+    country: "أمريكا",
+    language: "إنجليزية مترجمة",
+    duration: 114,
+    director: "Greta Gerwig",
+    cast: ["Margot Robbie", "Ryan Gosling", "Will Ferrell"]
+  },
+  {
+    title: "Ertugrul: The Resurrection",
+    arabicTitle: "أرطغرل: البعث",
+    description: "فيلم تاريخي تركي درامي عن قيام إمبراطورية من الرماد",
+    poster: "https://via.placeholder.com/500x750?text=Ertugrul+Movie",
+    year: 2025,
+    genre: ["تاريخي", "درامي", "أكشن"],
+    rating: 8.4,
+    country: "تركيا",
+    language: "تركي مترجم",
+    duration: 155,
+    director: "Metin Bozdağ",
+    cast: ["Engin Altan Düzyatan", "Serdar Gökhan"]
+  },
+  {
+    title: "Pathaan 2",
+    arabicTitle: "باثان 2",
+    description: "فيلم أكشن جاسوسي هندي عن جاسوس ينقذ العالم من الخطر",
+    poster: "https://via.placeholder.com/500x750?text=Pathaan+2",
+    year: 2025,
+    genre: ["أكشن", "جريمة", "إثارة"],
+    rating: 8.2,
+    country: "الهند",
+    language: "هندي مترجم",
+    duration: 145,
+    director: "Siddharth Anand",
+    cast: ["Shah Rukh Khan", "Deepika Padukone"]
+  }
+];
+
+function openModal(m) {
+  document.getElementById('modal-poster').src = m.poster;
+  document.getElementById('modal-poster').alt = m.title;
+  document.getElementById('modal-title').textContent = m.title;
+  document.getElementById('modal-arabic').textContent = m.arabicTitle;
+  document.getElementById('modal-desc').textContent = m.description;
+  document.getElementById('modal-meta').innerHTML = `
+    <div class="item"><span class="label">⭐ التقييم:</span><span class="value">${m.rating}</span></div>
+    <div class="item"><span class="label">📅 السنة:</span><span class="value">${m.year}</span></div>
+    <div class="item"><span class="label">⏱️ المدة:</span><span class="value">${m.duration} دقيقة</span></div>
+    <div class="item"><span class="label">🌍 الدولة:</span><span class="value">${m.country}</span></div>
+    <div class="item"><span class="label">🌐 اللغة:</span><span class="value">${m.language}</span></div>
+    <div class="item"><span class="label">🎬 المخرج:</span><span class="value">${m.director}</span></div>
+  `;
+  document.getElementById('modal-genres').innerHTML = m.genre.map(g => `<span class="genre-tag">${g}</span>`).join('');
+  document.getElementById('modal-cast').innerHTML = m.cast.map(c => `<span class="cast-chip">${c}</span>`).join('');
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('active');
+}
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+const seriesData = [
+  {
+    title: "Breaking Bad",
+    arabicTitle: "الحاء والباء",
+    description: "مسلسل درامي يروي قصة مدرس كيمياء يصبح تاجر مخدرات",
+    poster: "https://via.placeholder.com/150x225?text=BreakingBad",
+    year: 2008,
+    genre: ["درامي", "جنائي", "إثارة"],
+    rating: 9.5,
+    country: "أمريكا",
+    language: "إنجليزية",
+    duration: 0,
+    seasons: 5,
+    director: "Vince Gilligan",
+    cast: ["Bryan Cranston", "Aaron Paul"]
+  },
+  {
+    title: "Game of Thrones",
+    arabicTitle: "لعبة العروش",
+    description: "مسلسل إسطوري عن الحروب والمؤامرات في عالم خيالي",
+    poster: "https://via.placeholder.com/150x225?text=GameOfThrones",
+    year: 2011,
+    genre: ["الخيال", "درامي", "إثارة"],
+    rating: 9.2,
+    country: "أمريكا",
+    language: "إنجليزية",
+    duration: 0,
+    seasons: 8,
+    director: "David Benioff, D.B. Weiss",
+    cast: ["Emilia Clarke", "Kit Harington"]
+  },
+  {
+    title: "Stranger Things",
+    arabicTitle: "أشياء غريبة",
+    description: "مسلسل خيال علمي درامي يدور حول أحداث غريبة في بلدة أمريكية",
+    poster: "https://via.placeholder.com/150x225?text=StrangerThings",
+    year: 2016,
+    genre: ["خيال علمي", "درامي", "رعب"],
+    rating: 8.7,
+    country: "أمريكا",
+    language: "إنجليزية",
+    duration: 0,
+    seasons: 4,
+    director: "Matt Duffer, Ross Duffer",
+    cast: ["Winona Ryder", "David Harbour"]
+  }
+];
+
+function render() {
+  const seriesGrid = document.getElementById('series');
+  seriesGrid.innerHTML = seriesData.map((m, i) => `
+    <div class="movie-card" onclick="openModal(seriesData[${i}])">
+      <div class="card-header">
+        <img class="poster" src="${m.poster}" alt="${m.title}">
+        <div class="card-info">
+          <div>
+            <h2>${m.title}</h2>
+            <div class="arabic-title">${m.arabicTitle}</div>
+            <div class="description">${m.description}</div>
+            <div class="rating-badge">⭐ ${m.rating}</div>
+          </div>
+        </div>
+      </div>
+      <div class="genres">
+        ${m.genre.map(g => `<span class="genre-tag">${g}</span>`).join('')}
+      </div>
+      <div class="card-footer">
+        <div class="item"><span class="label">📅 السنة:</span><span class="value">${m.year}</span></div>
+        <div class="item"><span class="label">📺 المواسم:</span><span class="value">${m.seasons} مواسم</span></div>
+        <div class="item"><span class="label">🌍 الدولة:</span><span class="value">${m.country}</span></div>
+        <div class="item"><span class="label">🎬 المخرج:</span><span class="value">${m.director}</span></div>
+      </div>
+      <div class="cast-list">
+        <h4>طاقم التمثيل</h4>
+        <div class="cast-names">
+          ${m.cast.map(c => `<span class="cast-chip">${c}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  const grid = document.getElementById('movies');
+  grid.innerHTML = movies.map((m, i) => `
+    <div class="movie-card" onclick="openModal(movies[${i}])">
+      <div class="card-header">
+        <img class="poster" src="${m.poster}" alt="${m.title}">
+        <div class="card-info">
+          <div>
+            <h2>${m.title}</h2>
+            <div class="arabic-title">${m.arabicTitle}</div>
+            <div class="description">${m.description}</div>
+            <div class="rating-badge">⭐ ${m.rating}</div>
+          </div>
+        </div>
+      </div>
+      <div class="genres">
+        ${m.genre.map(g => `<span class="genre-tag">${g}</span>`).join('')}
+      </div>
+      <div class="card-footer">
+        <div class="item"><span class="label">📅 السنة:</span><span class="value">${m.year}</span></div>
+        <div class="item"><span class="label">⏱️ المدة:</span><span class="value">${m.duration} دقيقة</span></div>
+        <div class="item"><span class="label">🌍 الدولة:</span><span class="value">${m.country}</span></div>
+        <div class="item"><span class="label">🎬 المخرج:</span><span class="value">${m.director}</span></div>
+      </div>
+      <div class="cast-list">
+        <h4>طاقم التمثيل</h4>
+        <div class="cast-names">
+          ${m.cast.map(c => `<span class="cast-chip">${c}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+render();
+</script>
+</body>
+</html>
